@@ -382,7 +382,10 @@
 </footer>
 
 <!-- ── RETELL WEB SDK ── -->
-<script src="https://cdn.jsdelivr.net/npm/@retell-ai/web-sdk/dist/index.umd.js"></script>
+<script type="module">
+  import { RetellWebClient } from 'https://esm.sh/@retell-ai/web-sdk';
+  window.RetellWebClient = RetellWebClient;
+</script>
 <script>
   const TOKEN_URL = 'https://primary-production-38342.up.railway.app/webhook/retell-web-token';
 
