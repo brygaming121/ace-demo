@@ -384,9 +384,7 @@
 <!-- ── RETELL WEB SDK ── -->
 <script type="module">
   import { RetellWebClient } from 'https://esm.sh/@retell-ai/web-sdk';
-  window.RetellWebClient = RetellWebClient;
-</script>
-<script>
+
   const TOKEN_URL = 'https://primary-production-38342.up.railway.app/webhook/retell-web-token';
 
   let retellClient = null;
@@ -406,6 +404,8 @@
       await startCall();
     }
   }
+
+  window.toggleCall = toggleCall;
 
   async function startCall() {
     const btn = document.getElementById('callBtn');
