@@ -441,67 +441,51 @@
     document.querySelector('nav').style.padding=window.scrollY>40?'12px 5%':'16px 5%';
   });
 
-  // ── Retell ──
-  var TOKEN_URL = 'https://primary-production-38342.up.railway.app/webhook/retell-web-token';
-  var retellClient = null;
-  var callActive = false;
+  // placeholder — real logic is in the module below
+  function startCall() { window._startCall && window._startCall(); }
+</script>
 
-  (function(d, t) {
-    var g = document.createElement(t), s = d.getElementsByTagName(t)[0];
-    g.src = 'https://cdn.jsdelivr.net/npm/@retell-ai/web-sdk/dist/index.umd.js';
-    g.defer = true; g.async = true;
-    s.parentNode.insertBefore(g, s);
-    g.onload = function() {
-      retellClient = new RetellWebClient();
+<script type="module">
+  import { RetellWebClient } from 'https://esm.sh/retell-client-js-sdk';
 
-      retellClient.on('call_started', function() {
-        callActive = true;
-        document.getElementById('aceFloat').classList.add('active');
-        document.getElementById('aceStatusText').textContent = 'Connected to Ace...';
-        document.getElementById('aceStatus').classList.add('show');
-      });
+  const TOKEN_URL = 'https://primary-production-38342.up.railway.app/webhook/retell-web-token';
+  const client = new RetellWebClient();
+  let callActive = false;
 
-      retellClient.on('agent_start_talking', function() {
-        document.getElementById('aceStatusText').textContent = 'Ace is speaking...';
-      });
+  client.on('call_started', () => {
+    callActive = true;
+    document.getElementById('aceFloat').classList.add('active');
+    document.getElementById('aceStatusText').textContent = 'Connected to Ace...';
+    document.getElementById('aceStatus').classList.add('show');
+  });
+  client.on('agent_start_talking', () => {
+    document.getElementById('aceStatusText').textContent = 'Ace is speaking...';
+  });
+  client.on('agent_stop_talking', () => {
+    document.getElementById('aceStatusText').textContent = 'Ace is listening...';
+  });
+  client.on('call_ended', () => {
+    callActive = false;
+    document.getElementById('aceFloat').classList.remove('active');
+    document.getElementById('aceStatus').classList.remove('show');
+  });
+  client.on('error', (err) => {
+    console.error('Retell error', err);
+    callActive = false;
+    document.getElementById('aceFloat').classList.remove('active');
+    document.getElementById('aceStatus').classList.remove('show');
+  });
 
-      retellClient.on('agent_stop_talking', function() {
-        document.getElementById('aceStatusText').textContent = 'Ace is listening...';
-      });
-
-      retellClient.on('call_ended', function() {
-        callActive = false;
-        document.getElementById('aceFloat').classList.remove('active');
-        document.getElementById('aceStatus').classList.remove('show');
-      });
-
-      retellClient.on('error', function(err) {
-        console.error('Retell error', err);
-        callActive = false;
-        document.getElementById('aceFloat').classList.remove('active');
-        document.getElementById('aceStatus').classList.remove('show');
-      });
-    };
-  })(document, 'script');
-
-  async function startCall() {
-    if (callActive) {
-      if (retellClient) retellClient.stopCall();
-      return;
-    }
-    if (!retellClient) {
-      alert('Still loading — please try again in a moment.');
-      return;
-    }
+  window._startCall = async function() {
+    if (callActive) { client.stopCall(); return; }
     try {
-      var res = await fetch(TOKEN_URL);
-      var data = await res.json();
-      await retellClient.startCall({ accessToken: data.access_token });
+      const res = await fetch(TOKEN_URL);
+      const { access_token } = await res.json();
+      await client.startCall({ accessToken: access_token });
     } catch(e) {
       alert('Could not connect: ' + e.message);
     }
-  }
+  };
 </script>
-
 </body>
 </html>
