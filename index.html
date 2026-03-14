@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>World of Sports Fun — AI Booking Assistant</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: #0a0a0a;
+      color: #fff;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 20px;
+      background: linear-gradient(135deg, #0d1b2a 0%, #1a0533 50%, #0d1b2a 100%);
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% 40%, rgba(139,92,246,0.2) 0%, transparent 70%);
+    }
+
+    .logo-wrap {
+      margin-bottom: 24px;
+      position: relative;
+    }
+
+    .logo-icon {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      font-size: 40px;
+      box-shadow: 0 0 40px rgba(139,92,246,0.5);
+    }
+
+    .brand {
+      font-size: 13px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #8b5cf6;
+      font-weight: 600;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 20px;
+      position: relative;
+      background: linear-gradient(135deg, #fff 0%, #c4b5fd 50%, #67e8f9 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      font-size: clamp(1rem, 2vw, 1.25rem);
+      color: #94a3b8;
+      max-width: 520px;
+      line-height: 1.6;
+      margin-bottom: 48px;
+      position: relative;
+    }
+
+    /* ── CALL BUTTON ── */
+    .call-btn {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+      color: #fff;
+      border: none;
+      padding: 18px 40px;
+      border-radius: 60px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 32px rgba(139,92,246,0.4);
+      letter-spacing: 0.5px;
+    }
+
+    .call-btn:hover:not(:disabled) {
+      transform: translateY(-3px);
+      box-shadow: 0 16px 48px rgba(139,92,246,0.6);
+    }
+
+    .call-btn:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    .call-btn:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    .call-btn .mic-icon {
+      width: 24px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+
+    /* Pulse ring when active */
+    .call-btn.active {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      box-shadow: 0 8px 32px rgba(239,68,68,0.4);
+      animation: pulse-ring 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse-ring {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.4), 0 8px 32px rgba(239,68,68,0.4); }
+      50% { box-shadow: 0 0 0 16px rgba(239,68,68,0), 0 8px 32px rgba(239,68,68,0.4); }
+    }
+
+    /* ── STATUS ── */
+    .status-bar {
+      margin-top: 24px;
+      min-height: 28px;
+      font-size: 0.9rem;
+      color: #64748b;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      position: relative;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #64748b;
+      flex-shrink: 0;
+    }
+
+    .status-dot.connecting { background: #f59e0b; animation: blink 0.8s ease-in-out infinite; }
+    .status-dot.connected  { background: #22c55e; }
+    .status-dot.error      { background: #ef4444; }
+
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+    /* ── FEATURES ── */
+    .features {
+      display: flex;
+      gap: 16px;
+      margin-top: 60px;
+      flex-wrap: wrap;
+      justify-content: center;
+      position: relative;
+      max-width: 700px;
+    }
+
+    .feature-chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      padding: 10px 18px;
+      border-radius: 40px;
+      font-size: 0.85rem;
+      color: #94a3b8;
+      backdrop-filter: blur(8px);
+    }
+
+    .feature-chip span.icon { font-size: 1.1rem; }
+
+    /* ── ABOUT SECTION ── */
+    .about {
+      padding: 80px 20px;
+      max-width: 960px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .section-label {
+      font-size: 12px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #8b5cf6;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .about h2 {
+      font-size: clamp(1.75rem, 4vw, 2.5rem);
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+
+    .about p {
+      color: #94a3b8;
+      font-size: 1.05rem;
+      line-height: 1.7;
+      max-width: 640px;
+      margin: 0 auto 48px;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      text-align: left;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 16px;
+      padding: 28px 24px;
+      transition: border-color 0.3s;
+    }
+
+    .card:hover { border-color: rgba(139,92,246,0.3); }
+
+    .card-icon {
+      font-size: 2rem;
+      margin-bottom: 14px;
+    }
+
+    .card h3 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .card p {
+      font-size: 0.88rem;
+      color: #64748b;
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      padding: 32px 20px;
+      color: #334155;
+      font-size: 0.8rem;
+      border-top: 1px solid rgba(255,255,255,0.04);
+    }
+
+    /* ── AUDIO VISUALIZER (decorative) ── */
+    .visualizer {
+      display: flex;
+      align-items: flex-end;
+      gap: 3px;
+      height: 32px;
+      margin-top: 12px;
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+
+    .visualizer.active { opacity: 1; }
+
+    .bar {
+      width: 4px;
+      background: linear-gradient(to top, #8b5cf6, #06b6d4);
+      border-radius: 2px;
+      animation: wave 1s ease-in-out infinite;
+    }
+
+    .bar:nth-child(1) { animation-delay: 0s;    height: 8px; }
+    .bar:nth-child(2) { animation-delay: 0.1s;  height: 16px; }
+    .bar:nth-child(3) { animation-delay: 0.2s;  height: 24px; }
+    .bar:nth-child(4) { animation-delay: 0.3s;  height: 16px; }
+    .bar:nth-child(5) { animation-delay: 0.4s;  height: 8px; }
+    .bar:nth-child(6) { animation-delay: 0.15s; height: 20px; }
+    .bar:nth-child(7) { animation-delay: 0.25s; height: 12px; }
+
+    @keyframes wave {
+      0%, 100% { transform: scaleY(1); }
+      50% { transform: scaleY(0.3); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="logo-wrap">
+    <div class="logo-icon">🏆</div>
+    <div class="brand">World of Sports Fun</div>
+  </div>
+
+  <h1>Meet Ace,<br>Your AI Booking Assistant</h1>
+
+  <p class="subtitle">
+    Book lanes, check availability, and get pricing — all with a natural voice conversation. Available 24/7.
+  </p>
+
+  <button class="call-btn" id="callBtn" onclick="toggleCall()">
+    <svg class="mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+      <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+      <line x1="12" y1="19" x2="12" y2="23"/>
+      <line x1="8" y1="23" x2="16" y2="23"/>
+    </svg>
+    <span id="btnText">Call Ace Now</span>
+  </button>
+
+  <div class="visualizer" id="visualizer">
+    <div class="bar"></div>
+    <div class="bar"></div>
+    <div class="bar"></div>
+    <div class="bar"></div>
+    <div class="bar"></div>
+    <div class="bar"></div>
+    <div class="bar"></div>
+  </div>
+
+  <div class="status-bar">
+    <div class="status-dot" id="statusDot"></div>
+    <span id="statusText">Ready to connect</span>
+  </div>
+
+  <div class="features">
+    <div class="feature-chip"><span class="icon">🎳</span> Bowling Lanes</div>
+    <div class="feature-chip"><span class="icon">🏓</span> Ping Pong</div>
+    <div class="feature-chip"><span class="icon">🎮</span> Party Packages</div>
+    <div class="feature-chip"><span class="icon">📅</span> Live Availability</div>
+    <div class="feature-chip"><span class="icon">💬</span> Instant Booking</div>
+  </div>
+</section>
+
+<!-- ── ABOUT ── -->
+<section class="about">
+  <div class="section-label">How It Works</div>
+  <h2>Just speak naturally</h2>
+  <p>
+    Ace understands what you need and handles everything — checking open slots, calculating prices, capturing your details, and confirming your booking.
+  </p>
+
+  <div class="cards">
+    <div class="card">
+      <div class="card-icon">🎙️</div>
+      <h3>Start a Call</h3>
+      <p>Click the button above. Ace picks up instantly — no hold music, no waiting.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🧠</div>
+      <h3>Ask Anything</h3>
+      <p>Pricing, availability, packages, group sizes — Ace knows it all from the knowledge base.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">✅</div>
+      <h3>Get Booked</h3>
+      <p>Ace captures your details and books your event. You get a confirmation immediately.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">⚡</div>
+      <h3>Instant Answers</h3>
+      <p>No forms, no emails. Real-time responses powered by GPT-4 and ElevenLabs voice.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  &copy; 2026 World of Sports Fun &nbsp;·&nbsp; Powered by Retell AI &nbsp;·&nbsp; Built with n8n
+</footer>
+
+<!-- ── RETELL WEB SDK ── -->
+<script src="https://cdn.jsdelivr.net/npm/@retell-ai/web-sdk/dist/index.umd.js"></script>
+<script>
+  const TOKEN_URL = 'https://primary-production-38342.up.railway.app/webhook/retell-web-token';
+
+  let retellClient = null;
+  let isCallActive  = false;
+
+  function setStatus(state, text) {
+    const dot  = document.getElementById('statusDot');
+    const span = document.getElementById('statusText');
+    dot.className  = 'status-dot ' + (state || '');
+    span.textContent = text;
+  }
+
+  async function toggleCall() {
+    if (isCallActive) {
+      endCall();
+    } else {
+      await startCall();
+    }
+  }
+
+  async function startCall() {
+    const btn = document.getElementById('callBtn');
+    const viz = document.getElementById('visualizer');
+
+    btn.disabled = true;
+    document.getElementById('btnText').textContent = 'Connecting…';
+    setStatus('connecting', 'Getting access token…');
+
+    try {
+      // 1. Get token from n8n
+      const res = await fetch(TOKEN_URL);
+      if (!res.ok) throw new Error('Token request failed (' + res.status + ')');
+      const { access_token } = await res.json();
+
+      setStatus('connecting', 'Starting call…');
+
+      // 2. Init Retell client
+      retellClient = new RetellWebClient();
+
+      retellClient.on('call_started', () => {
+        isCallActive = true;
+        btn.disabled = false;
+        btn.classList.add('active');
+        document.getElementById('btnText').textContent = 'End Call';
+        viz.classList.add('active');
+        setStatus('connected', 'Connected — Ace is listening');
+      });
+
+      retellClient.on('call_ended', () => {
+        cleanupCall();
+      });
+
+      retellClient.on('error', (err) => {
+        console.error('Retell error:', err);
+        setStatus('error', 'Error: ' + (err.message || err));
+        cleanupCall();
+      });
+
+      // 3. Start call
+      await retellClient.startCall({ accessToken: access_token });
+
+    } catch (err) {
+      console.error(err);
+      setStatus('error', 'Could not connect: ' + err.message);
+      btn.disabled = false;
+      document.getElementById('btnText').textContent = 'Call Ace Now';
+    }
+  }
+
+  function endCall() {
+    if (retellClient) {
+      retellClient.stopCall();
+    }
+    cleanupCall();
+  }
+
+  function cleanupCall() {
+    isCallActive  = false;
+    retellClient  = null;
+
+    const btn = document.getElementById('callBtn');
+    btn.disabled = false;
+    btn.classList.remove('active');
+    document.getElementById('btnText').textContent = 'Call Ace Now';
+    document.getElementById('visualizer').classList.remove('active');
+    setStatus('', 'Call ended — thanks for visiting!');
+  }
+</script>
+
+</body>
+</html>
