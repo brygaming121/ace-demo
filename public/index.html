@@ -451,8 +451,34 @@
   const TOKEN_URL = 'https://primary-production-38342.up.railway.app/webhook/retell-web-token';
   const client = new RetellWebClient();
   let callActive = false;
+  let ringInterval = null;
+  let audioCtx = null;
+
+  function playRing() {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function beep() {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.frequency.value = 480;
+      osc.type = 'sine';
+      gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.9);
+      osc.start(audioCtx.currentTime);
+      osc.stop(audioCtx.currentTime + 0.9);
+    }
+    beep();
+    ringInterval = setInterval(beep, 1600);
+  }
+
+  function stopRing() {
+    if (ringInterval) { clearInterval(ringInterval); ringInterval = null; }
+    if (audioCtx) { audioCtx.close(); audioCtx = null; }
+  }
 
   client.on('call_started', () => {
+    stopRing();
     callActive = true;
     document.getElementById('aceFloat').classList.add('active');
     document.getElementById('aceStatusText').textContent = 'Connected to Ace...';
@@ -465,11 +491,13 @@
     document.getElementById('aceStatusText').textContent = 'Ace is listening...';
   });
   client.on('call_ended', () => {
+    stopRing();
     callActive = false;
     document.getElementById('aceFloat').classList.remove('active');
     document.getElementById('aceStatus').classList.remove('show');
   });
   client.on('error', (err) => {
+    stopRing();
     console.error('Retell error', err);
     callActive = false;
     document.getElementById('aceFloat').classList.remove('active');
@@ -478,11 +506,16 @@
 
   window._startCall = async function() {
     if (callActive) { client.stopCall(); return; }
+    playRing();
+    document.getElementById('aceStatusText').textContent = 'Connecting to Ace...';
+    document.getElementById('aceStatus').classList.add('show');
     try {
       const res = await fetch(TOKEN_URL);
       const { access_token } = await res.json();
       await client.startCall({ accessToken: access_token });
     } catch(e) {
+      stopRing();
+      document.getElementById('aceStatus').classList.remove('show');
       alert('Could not connect: ' + e.message);
     }
   };
